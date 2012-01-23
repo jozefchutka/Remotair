@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+               xmlns:s="library://ns.adobe.com/flex/spark" 
+               xmlns:mx="library://ns.adobe.com/flex/mx"
+               xmlns:view="remotair.view.*"
+               applicationComplete="init()" viewSourceURL="srcview/index.html">
+<fx:Script>
+<![CDATA[
+    import mx.controls.Alert;
+    
+    import sk.yoz.remotair.events.GenericConnectorEvent;
+    import sk.yoz.remotair.events.ReceiverEvent;
+    import sk.yoz.remotair.net.GenericConnector;
+    import sk.yoz.remotair.net.Receiver;
+    
+    [Bindable]
+    private var receiver:Receiver = new Receiver(
+        GenericConnector.HANDSHAKE_URL, 
+        GenericConnector.DEVELOPER_KEY, 
+        GenericConnector.CHANNEL_SERVICE);
+    
+    private function init():void
+    {
+        receiver.addEventListener(GenericConnectorEvent.NET_DISCONNECTED, onNetDisconneceted);
+        receiver.addEventListener(GenericConnectorEvent.PEER_CONNECTED, onPeerConneceted);
+        receiver.addEventListener(GenericConnectorEvent.PEER_DISCONNECTED, onPeerDisconneceted);
+    }
+    
+    private function onNetDisconneceted(event:GenericConnectorEvent):void
+    {
+        currentState = "form";
+        Alert.show("You have been disconnected!", "Connection");
+    }
+    
+    private function onPeerConneceted(event:GenericConnectorEvent):void
+    {
+        currentState = "connected";
+    }
+    
+    private function onPeerDisconneceted(event:GenericConnectorEvent):void
+    {
+        currentState = "form";
+        receiver.disconnect();
+    }
+    
+    override public function set currentState(value:String):void
+    {
+        super.currentState = value;
+        invalidateProperties();
+    }
+    
+    private function connect():void
+    {
+        receiver.connectChannel(channel.text);
+        currentState = "connecting";
+    }
+    
+    private function disconnect():void
+    {
+        receiver.disconnect();
+    }
+]]>
+</fx:Script>
+<s:states>
+    <s:State name="form" />
+    <s:State name="connecting" />
+    <s:State name="connected" />
+</s:states>
+<s:HGroup includeIn="form" width="100%" height="100%"
+          verticalAlign="middle" horizontalAlign="center">
+    <s:Label text="channel:" />
+    <s:TextInput id="channel" enter="connect()" restrict="0-9"/>
+    <s:Button click="connect()" label="connect"/>
+</s:HGroup>
+<s:VGroup includeIn="connecting" width="100%" height="100%"
+          verticalAlign="middle" horizontalAlign="center">
+    <s:Label text="connecting..." />
+    <s:Button click="disconnect()" label="cancel"/>
+</s:VGroup>
+<view:MainStack includeIn="connected" width="100%" height="100%" receiver="{receiver}"/>
+</s:Application>
