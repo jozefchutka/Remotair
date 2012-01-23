@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+         xmlns:s="library://ns.adobe.com/flex/spark" 
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         creationComplete="init()" resize="resize()">
+<fx:Script>
+<![CDATA[
+    import sk.yoz.math.ResizeMath;
+    import sk.yoz.remotair.net.Receiver;
+    
+    private var video:Video = new Video();
+    
+    private var _receiver:Receiver;
+    
+    public function set receiver(value:Receiver):void
+    {
+        _receiver = value;
+        
+        video.attachNetStream(receiver.stream);
+    }
+    
+    public function get receiver():Receiver
+    {
+        return _receiver;
+    }
+    
+    private function init():void
+    {
+        container.addChild(video);
+        resize();
+    }
+    
+    private function resize():void
+    {
+        var dim:Point = ResizeMath.newDimensions(
+            new Point(320, 240), new Point(width, height), 
+            ResizeMath.METHOD_LETTERBOX, true)
+         
+        video.width = dim.x;
+        video.height = dim.y;
+        video.x = (width - video.width) / 2;
+        video.y = (height - video.height) / 2;
+    }
+]]>
+</fx:Script>
+<s:SpriteVisualElement id="container" />
+</s:Group>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
+          xmlns:s="library://ns.adobe.com/flex/spark" 
+          xmlns:mx="library://ns.adobe.com/flex/mx"
+          xmlns:view="remotair.view.*">
+<fx:Script>
+<![CDATA[
+    import sk.yoz.remotair.net.Receiver;
+    
+    [Bindable]
+    public var receiver:Receiver;
+]]>
+</fx:Script>
+<s:TabBar dataProvider="{stack}"/>
+<mx:ViewStack id="stack" width="100%" height="100%">
+    <s:NavigatorContent label="Log" width="100%" height="100%">
+        <view:LogView width="100%" height="100%" receiver="{receiver}"/>
+    </s:NavigatorContent>
+    <s:NavigatorContent label="Keyboard" width="100%" height="100%">
+        <view:KeyboardView width="100%" height="100%" receiver="{receiver}"/>
+    </s:NavigatorContent>
+    <s:NavigatorContent label="Mouse + Touch" width="100%" height="100%">
+        <view:MouseView width="100%" height="100%" receiver="{receiver}"/>
+    </s:NavigatorContent>
+    <s:NavigatorContent label="Gestures" width="100%" height="100%">
+        <view:GestureView width="100%" height="100%" receiver="{receiver}"/>
+    </s:NavigatorContent>
+    <s:NavigatorContent label="Gamepad + Joystick + Acc" width="100%" height="100%">
+        <view:AccelerometerView width="100%" height="100%" receiver="{receiver}"/>
+    </s:NavigatorContent>
+    <s:NavigatorContent label="Cam + Mic" width="100%" height="100%">
+        <view:CameraView width="100%" height="100%" receiver="{receiver}"/>
+    </s:NavigatorContent>
+    <s:NavigatorContent label="Geolocation" width="100%" height="100%">
+        <view:GeolocationView width="100%" height="100%" receiver="{receiver}"/>
+    </s:NavigatorContent>
+    <s:NavigatorContent label="Remote Desktop" width="100%" height="100%">
+        <view:RemoteDesktopView width="100%" height="100%" receiver="{receiver}"/>
+    </s:NavigatorContent>
+</mx:ViewStack>
+</s:VGroup>

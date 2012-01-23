@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+          xmlns:s="library://ns.adobe.com/flex/spark" 
+          xmlns:mx="library://ns.adobe.com/flex/mx"
+          creationComplete="init()" resize="resize()">
+<fx:Script>
+<![CDATA[
+    import mx.collections.ArrayCollection;
+    
+    import sk.yoz.math.ResizeMath;
+    import sk.yoz.remotair.events.ReceiverEvent;
+    import sk.yoz.remotair.events.RemotairEvent;
+    import sk.yoz.remotair.events.ViewEvent;
+    import sk.yoz.remotair.net.Receiver;
+    import sk.yoz.system.SystemMouse;
+    
+    [Bindable]
+    private var cameras:ArrayCollection;
+    
+    [Bindable]
+    private var selectedCamera:String;
+    
+    private var _receiver:Receiver;
+    private var stream:NetStream;
+    private var camera:Camera;
+    private var cameraWidth:uint = 800;
+    private var cameraHeight:uint = 480;
+    private var video:Video = new Video;
+    private var logHistory:Array = [];
+    
+    protected function init():void
+    {
+        cameras = new ArrayCollection(Camera.names);
+        selectedCamera = "VHScrCap";
+        container.addChild(video);
+        callLater(onCameraChange);
+    }
+    
+    public function set receiver(value:Receiver):void
+    {
+        _receiver = value;
+        
+        receiver.remotairEvents.addEventListener(RemotairEvent.INIT_REMOTE_DESKTOP, onProvideRemoteDesktop);
+        
+        receiver.mouseEvents.addEventListener(MouseEvent.MOUSE_MOVE, onReceivedMouseMove);
+        receiver.mouseEvents.addEventListener(MouseEvent.MOUSE_DOWN, onReceivedMouseDown);
+        receiver.mouseEvents.addEventListener(RemotairEvent.MOUSE_LEFT_DOWN, onReceivedMouseLeftDown);
+        receiver.mouseEvents.addEventListener(RemotairEvent.MOUSE_LEFT_UP, onReceivedMouseLeftUp);
+        receiver.mouseEvents.addEventListener(RemotairEvent.MOUSE_RIGHT_DOWN, onReceivedMouseRightDown);
+        receiver.mouseEvents.addEventListener(RemotairEvent.MOUSE_RIGHT_UP, onReceivedMouseRightUp);
+        
+        receiver.keyboardEvents.addEventListener(KeyboardEvent.KEY_UP, onReceivedKeyboardUp);
+    }
+    
+    public function get receiver():Receiver
+    {
+        return _receiver;
+    }
+    
+    private function onProvideRemoteDesktop(event:RemotairEvent):void
+    {
+        if(stream)
+            return;
+        stream = new NetStream(receiver.connection, NetStream.DIRECT_CONNECTIONS);
+        stream.publish(event.data.channel);
+        
+        cameraWidth = event.data.width;
+        cameraHeight = event.data.height;
+        onCameraChange();
+    }
+    
+    protected function onReceivedMouseMove(event:MouseEvent):void
+    {
+        log(event.toString());
+    }
+    
+    protected function onReceivedMouseDown(event:MouseEvent):void
+    {
+        log(event.toString());
+    }
+    
+    protected function onReceivedMouseLeftDown(event:MouseEvent):void
+    {
+        log(event.toString());
+    }
+    
+    protected function onReceivedMouseLeftUp(event:MouseEvent):void
+    {
+        log(event.toString());
+    }
+    
+    protected function onReceivedMouseRightDown(event:MouseEvent):void
+    {
+        log(event.toString());
+    }
+    
+    protected function onReceivedMouseRightUp(event:MouseEvent):void
+    {
+        log(event.toString());
+    }
+    
+    protected function onReceivedKeyboardUp(event:KeyboardEvent):void
+    {
+        log(event.toString());
+    }
+    
+    private function onCameraChange():void
+    {
+        var index:int = Math.max(cameraList.selectedIndex, 0);
+        camera = Camera.getCamera(index.toString());
+        camera.setMode(cameraWidth, cameraHeight, 10);
+        camera.setLoopback(true);
+        onQualityChange();
+        
+        video.attachCamera(camera);
+        video.smoothing = true;
+        stream && stream.attachCamera(camera);
+        resize();
+    }
+    
+    private function onQualityChange():void
+    {
+        camera && camera.setQuality(0, qualityLsit.selectedItem);
+    }
+    
+    private function resize():void
+    {
+        var dim:Point = ResizeMath.newDimensions(
+            new Point(cameraWidth, cameraHeight), new Point(width, height), 
+            ResizeMath.METHOD_LETTERBOX, true)
+        
+        video.width = dim.x;
+        video.height = dim.y;
+        video.x = (width - video.width) / 2;
+        video.y = (height - video.height) / 2;
+    }
+    
+    private function log(message:String):void
+    {
+        logHistory.push(message);
+        if(logHistory.length > 10)
+            logHistory.shift();
+        
+        logTextArea.text = logHistory.join("\n");
+    }
+]]>
+</fx:Script>
+<s:SpriteVisualElement id="container" />
+<s:VGroup left="10" top="10" right="10" bottom="10">
+    <s:Label text="Works the best with VH Screen Capture Driver" />
+    <s:DropDownList id="cameraList" dataProvider="{cameras}" selectedItem="{selectedCamera}"
+                    change="onCameraChange()" toolTip="camera"/>
+    <s:DropDownList id="qualityLsit" selectedItem="80"
+                    change="onQualityChange()" toolTip="quality">
+        <s:dataProvider>
+            <s:ArrayCollection>
+                <fx:int>30</fx:int>
+                <fx:int>40</fx:int>
+                <fx:int>50</fx:int>
+                <fx:int>60</fx:int>
+                <fx:int>70</fx:int>
+                <fx:int>80</fx:int>
+                <fx:int>90</fx:int>
+                <fx:int>100</fx:int>
+            </s:ArrayCollection>
+        </s:dataProvider>
+    </s:DropDownList>
+    <s:TextArea id="logTextArea" width="100%" height="100%" 
+                borderVisible="false" contentBackgroundAlpha="0.3"
+                editable="false" selectable="false"/>
+</s:VGroup>
+</s:Group>

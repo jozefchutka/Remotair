@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:HGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
+         xmlns:s="library://ns.adobe.com/flex/spark" 
+         xmlns:mx="library://ns.adobe.com/flex/mx">
+<fx:Script>
+<![CDATA[
+    import sk.yoz.remotair.events.RemotairEvent;
+    import sk.yoz.remotair.net.Receiver;
+    
+    private var _receiver:Receiver;
+    
+    public function set receiver(value:Receiver):void
+    {
+        _receiver = value;
+        
+        receiver.keyboardEvents.addEventListener(KeyboardEvent.KEY_DOWN, onReceivedKeyDown);
+        receiver.keyboardEvents.addEventListener(KeyboardEvent.KEY_UP, onReceivedKeyUp);
+        //receiver.keyboard.addEventListener(TextEvent.TEXT_INPUT, onReceivedTextInput);
+        receiver.keyboardEvents.addEventListener(RemotairEvent.TEXT_CHANGE, onReceivedTextChange);
+    }
+    
+    public function get receiver():Receiver
+    {
+        return _receiver;
+    }
+    
+    private function getChar(event:KeyboardEvent):String
+    {
+        if(event.keyCode == Keyboard.UP)
+            return "*UP*";
+        if(event.keyCode == Keyboard.DOWN)
+            return "*DOWN*";
+        if(event.keyCode == Keyboard.LEFT)
+            return "*LEFT*";
+        if(event.keyCode == Keyboard.RIGHT)
+            return "*RIGHT*";
+        return String.fromCharCode(event.charCode);
+    }
+    
+    private function onReceivedKeyDown(event:KeyboardEvent):void
+    {
+        var char:String = getChar(event);
+        text.text += char;
+        codes.text += event.charCode + ", " + event.keyCode + "\n";
+        codes.scroller.verticalScrollBar.value = codes.scroller.verticalScrollBar.maximum;
+    }
+    
+    private function onReceivedKeyUp(event:KeyboardEvent):void
+    {
+        trace("up");
+    }
+    
+    private function onReceivedTextChange(event:TextEvent):void
+    {
+        text.text = event.text;
+    }
+]]>
+</fx:Script>
+<s:TextArea id="text" width="100%" height="100%"/>
+<s:TextArea id="codes" width="150" height="100%"/>
+</s:HGroup>
