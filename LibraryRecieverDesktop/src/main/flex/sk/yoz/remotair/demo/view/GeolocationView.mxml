@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+         xmlns:s="library://ns.adobe.com/flex/spark" 
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:maps="com.google.maps.*">
+<fx:Script>
+<![CDATA[
+    import com.google.maps.LatLng;
+    import com.google.maps.MapEvent;
+    import com.google.maps.MapType;
+    import com.google.maps.controls.MapTypeControl;
+    import com.google.maps.controls.PositionControl;
+    import com.google.maps.controls.ZoomControl;
+    
+    import sk.yoz.remotair.events.RecieverEvent;
+    import sk.yoz.remotair.net.Reciever;
+    
+    private var _receiver:Reciever;
+    private var mapReady:Boolean;
+    
+    public function set receiver(value:Reciever):void
+    {
+        _receiver = value;
+        
+        // use this for AIR apps, plugin player does not have GeolocationEvent yet
+        // receiver.geolocationEvents.addEventListener(GeolocationEvent.UPDATE, onGeolocationUpdate);
+        
+        // lets catch the raw packet so this works for AIR and plugin
+        receiver.addEventListener(RecieverEvent.PACKET_RECIEVED, onPacket);
+    }
+    
+    public function get receiver():Reciever
+    {
+        return _receiver;
+    }
+    
+    private function onMapReady(event:MapEvent):void
+    {
+        mapReady = true;
+        map.addControl(new ZoomControl());
+        map.addControl(new PositionControl());
+        map.addControl(new MapTypeControl());
+    }
+    
+    /*
+    private function onGeolocationUpdate(event:GeolocationEvent):void
+    {
+        if(!mapReady)
+            return;
+        
+        map.setCenter(new LatLng(event.latitude, event.longitude));
+    }
+    */
+    
+    private function onPacket(event:RecieverEvent):void
+    {
+        if(!mapReady)
+            return;
+        if(event.packet.header.className != "flash.events::GeolocationEvent")
+            return;
+        var data:Object = event.packet.data;
+        map.setCenter(new LatLng(data.latitude, data.longitude));
+    }
+]]>
+</fx:Script>
+<maps:Map id="map" mapevent_mapready="onMapReady(event)" width="100%" height="100%"
+          url="http://remotair.yoz.sk" sensor="false"
+          key="ABQIAAAAywdNoEbnfO1cvDEjsXD7JRRxhR1mUUfwphOyu5hMJL8BFOVDvhSBQ4V1Jp5NHNRMWMDLUBs0LfSWLw" />
+</s:Group>

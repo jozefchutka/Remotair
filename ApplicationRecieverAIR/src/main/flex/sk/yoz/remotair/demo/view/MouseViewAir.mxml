@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<view:MouseView xmlns:fx="http://ns.adobe.com/mxml/2009" 
+                xmlns:s="library://ns.adobe.com/flex/spark" 
+                xmlns:mx="library://ns.adobe.com/flex/mx" 
+                xmlns:view="sk.yoz.remotair.demo.view.*"
+                creationComplete="init()">
+<fx:Script>
+<![CDATA[
+    import sk.yoz.remotair.demo.Controller;
+    import sk.yoz.remotair.net.Reciever;
+    import sk.yoz.system.SystemMouse;
+    
+    import spark.components.CheckBox;
+    
+    private var systemCursorCheckbox:CheckBox = new CheckBox;
+    private var position:Point;
+    private var controller:Controller = Controller.instance;
+    
+    private function init():void
+    {
+        systemCursorCheckbox.label = "move system cursor";
+        systemCursorCheckbox.enabled = NativeProcess.isSupported;
+        addElementAt(systemCursorCheckbox, 0);
+    }
+    
+    override protected function onReceivedMouseMove(event:MouseEvent):void
+    {
+        super.onReceivedMouseMove(event);
+        if(!systemCursorCheckbox.selected)
+            return;
+        
+        controller.mouseMove(event.localX - position.x, event.localY - position.y);
+        position = new Point(event.localX, event.localY);
+    }
+    
+    override protected function onReceivedMouseDown(event:MouseEvent):void
+    {
+        super.onReceivedMouseDown(event);
+        position = new Point(event.localX, event.localY);
+    }
+    
+    override protected function onReceivedMouseLeftDown(event:MouseEvent):void
+    {
+        super.onReceivedMouseLeftDown(event);
+        if(!systemCursorCheckbox.selected)
+            return;
+        
+        controller.mouseEvent(SystemMouse.MOUSE_LEFT_DOWN);
+    }
+    
+    override protected function onReceivedMouseLeftUp(event:MouseEvent):void
+    {
+        super.onReceivedMouseLeftUp(event);
+        if(!systemCursorCheckbox.selected)
+            return;
+        
+        controller.mouseEvent(SystemMouse.MOUSE_LEFT_UP);
+    }
+    
+    override protected function onReceivedMouseRightDown(event:MouseEvent):void
+    {
+        super.onReceivedMouseRightDown(event);
+        if(!systemCursorCheckbox.selected)
+            return;
+        
+        controller.mouseEvent(SystemMouse.MOUSE_RIGHT_DOWN);
+    }
+    
+    override protected function onReceivedMouseRightUp(event:MouseEvent):void
+    {
+        super.onReceivedMouseRightUp(event);
+        if(!systemCursorCheckbox.selected)
+            return;
+        
+        controller.mouseEvent(SystemMouse.MOUSE_RIGHT_UP);
+    }
+]]>
+</fx:Script>
+</view:MouseView>

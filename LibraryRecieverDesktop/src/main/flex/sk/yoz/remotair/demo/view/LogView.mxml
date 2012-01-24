@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TextArea xmlns:fx="http://ns.adobe.com/mxml/2009" 
+         xmlns:s="library://ns.adobe.com/flex/spark" 
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         selectable="true">
+<fx:Script>
+<![CDATA[
+    import sk.yoz.remotair.events.RecieverEvent;
+    import sk.yoz.remotair.net.Reciever;
+    
+    private var history:Array = [];
+    private var _receiver:Reciever;
+    
+    public function set receiver(value:Reciever):void
+    {
+        _receiver = value;
+        receiver.addEventListener(RecieverEvent.EVENT_RECIEVED, onEvent);
+    }
+    
+    public function get receiver():Reciever
+    {
+        return _receiver;
+    }
+    
+    public function log(data:Object):void
+    {
+        var message:String = "";
+        var className:String = getQualifiedClassName(data);
+        if(data is MouseEvent)
+            message = className + " " + data.type + ", " + data.localX + " " + data.localY;
+        else
+            message = data.toString();
+        history.push(message);
+        
+        if(history.length > 50)
+            history.shift();
+        
+        updateText();
+    }
+    
+    private function updateText():void
+    {
+        text = history.join("\n");
+        scroller.verticalScrollBar.value = scroller.verticalScrollBar.maximum;
+    }
+    
+    private function onEvent(event:RecieverEvent):void
+    {
+        var receivedEvent:Event = Event(event.packet.data);
+        log(receivedEvent);
+    }
+]]>
+</fx:Script>
+</s:TextArea>

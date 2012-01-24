@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<view:RemoteDesktopView xmlns:fx="http://ns.adobe.com/mxml/2009" 
+                        xmlns:s="library://ns.adobe.com/flex/spark" 
+                        xmlns:mx="library://ns.adobe.com/flex/mx" 
+                        xmlns:view="sk.yoz.remotair.demo.view.*">
+<fx:Script>
+<![CDATA[
+    import sk.yoz.remotair.demo.Controller;
+    import sk.yoz.system.SystemMouse;
+    
+    private var offset:Point;
+    private var controller:Controller = Controller.instance;
+    
+    override protected function init():void
+    {
+        super.init();
+    }
+    
+    override protected function onReceivedMouseDown(event:MouseEvent):void
+    {
+        super.onReceivedMouseDown(event);
+        offset = new Point(event.localX, event.localY);
+    }
+    
+    override protected function onReceivedMouseMove(event:MouseEvent):void
+    {
+        super.onReceivedMouseMove(event);
+        controller.mouseMove(event.localX - offset.x, event.localY - offset.y);
+        offset = new Point(event.localX, event.localY);
+    }
+    
+    override protected function onReceivedMouseLeftDown(event:MouseEvent):void
+    {
+        super.onReceivedMouseLeftDown(event);
+        controller.mouseEvent(SystemMouse.MOUSE_LEFT_DOWN);
+    }
+    
+    override protected function onReceivedMouseLeftUp(event:MouseEvent):void
+    {
+        super.onReceivedMouseLeftUp(event);
+        controller.mouseEvent(SystemMouse.MOUSE_LEFT_UP);
+    }
+    
+    override protected function onReceivedMouseRightDown(event:MouseEvent):void
+    {
+        super.onReceivedMouseRightDown(event);
+        controller.mouseEvent(SystemMouse.MOUSE_RIGHT_DOWN);
+    }
+    
+    override protected function onReceivedMouseRightUp(event:MouseEvent):void
+    {
+        super.onReceivedMouseRightUp(event);
+        controller.mouseEvent(SystemMouse.MOUSE_RIGHT_UP);
+    }
+    
+    override protected function onReceivedKeyboardUp(event:KeyboardEvent):void
+    {
+        super.onReceivedKeyboardUp(event);
+        controller.keyboardEvent(event.keyCode);
+    }
+]]>
+</fx:Script>
+</view:RemoteDesktopView>

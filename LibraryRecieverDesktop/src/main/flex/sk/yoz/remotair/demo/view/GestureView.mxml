@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+         xmlns:s="library://ns.adobe.com/flex/spark" 
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         creationComplete="init()">
+<fx:Script>
+<![CDATA[
+    import com.greensock.TweenMax;
+    
+    import sk.yoz.remotair.net.Reciever;
+    private var _receiver:Reciever;
+    
+    private var shape:Shape = new Shape;
+    
+    private function init():void
+    {
+        var w:uint = width / 3;
+        var h:uint = height / 3;
+        shape.graphics.beginFill(0x0, 0.2);
+        shape.graphics.lineStyle(1, 0x0, 0.5);
+        shape.graphics.drawRect(-w/2, -h/2, w, h);
+        centerShapeX();
+        centerShapeY();
+        container.addChild(shape);
+    }
+    
+    public function set receiver(value:Reciever):void
+    {
+        _receiver = value;
+        
+        receiver.gestureEvents.addEventListener(GestureEvent.GESTURE_TWO_FINGER_TAP, onTwoFingerTap);
+        receiver.gestureEvents.addEventListener(PressAndTapGestureEvent.GESTURE_PRESS_AND_TAP, onPressAndTap);
+        receiver.gestureEvents.addEventListener(TransformGestureEvent.GESTURE_PAN, onGesturePan);
+        receiver.gestureEvents.addEventListener(TransformGestureEvent.GESTURE_ROTATE, onGestureRotate);
+        receiver.gestureEvents.addEventListener(TransformGestureEvent.GESTURE_SWIPE, onGestureSwipe);
+        receiver.gestureEvents.addEventListener(TransformGestureEvent.GESTURE_ZOOM, onGestureZoom);
+        
+    }
+    
+    public function get receiver():Reciever
+    {
+        return _receiver;
+    }
+    
+    private function centerShapeX():void
+    {
+        shape.x = width / 2;
+    }
+    
+    private function centerShapeY():void
+    {
+        shape.y = height / 2;
+    }
+    
+    private function onTwoFingerTap(event:GestureEvent):void
+    {
+        TweenMax.to(shape, 0.5, {rotation:shape.rotation + 180});
+    }
+    
+    private function onPressAndTap(event:PressAndTapGestureEvent):void
+    {
+        TweenMax.to(shape, 0.25, {scaleX:1/shape.scaleX, scaleY:1/shape.scaleY});
+        TweenMax.to(shape, 0.25, {scaleX:shape.scaleX, scaleY:shape.scaleY, delay:0.25});
+    }
+    
+    private function onGesturePan(event:TransformGestureEvent):void
+    {
+        shape.x += event.offsetX;
+        shape.y += event.offsetY;
+        
+        if(shape.x < 0 || shape.x > width)
+            centerShapeX();
+        
+        if(shape.y < 0 || shape.y > height)
+            centerShapeY();
+    }
+    
+    private function onGestureRotate(event:TransformGestureEvent):void
+    {
+        shape.rotation += event.rotation;
+    }
+    
+    private function onGestureSwipe(event:TransformGestureEvent):void
+    {
+        if(event.offsetX >= 1)
+            TweenMax.to(shape, 0.25, {x:width, onComplete:centerShapeX});
+        else if(event.offsetX <= -1)
+            TweenMax.to(shape, 0.25, {x:0, onComplete:centerShapeX});
+        
+        if(event.offsetY >= 1)
+            TweenMax.to(shape, 0.25, {y:height, onComplete:centerShapeY});
+        else if(event.offsetY <= -1)
+            TweenMax.to(shape, 0.25, {y:0, onComplete:centerShapeY});
+    }
+    
+    private function onGestureZoom(event:TransformGestureEvent):void
+    {
+        shape.scaleX *= event.scaleX;
+        shape.scaleY *= event.scaleY;
+        
+        if(shape.scaleX > 3 || shape.scaleX < 1/3)
+            shape.scaleX = 1;
+        
+        if(shape.scaleY > 3 || shape.scaleY < 1/3)
+            shape.scaleY = 1;
+    }
+]]>
+</fx:Script>
+<s:SpriteVisualElement id="container" width="100%" height="100%" />
+</s:Group>
